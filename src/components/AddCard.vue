@@ -6,8 +6,8 @@
           <v-sheet class="ma-0 pa-0">
             <textarea
               placeholder="Your text here"
-              class="post-input w-100 h-auto"
-              rows="4"
+              class="post-input w-100 h-auto mb-3"
+              rows="3"
             ></textarea>
             <v-sheet v-if="uploadedImage" class="position-relative">
               <v-btn
@@ -27,7 +27,7 @@
               </v-img>
             </v-sheet>
           </v-sheet>
-          <v-sheet class="d-flex">
+          <v-sheet class="d-flex pb-3">
             <v-sheet>
               <v-file-input
                 class="d-none"
