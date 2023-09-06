@@ -8,24 +8,39 @@
           </v-avatar>
         </v-col>
         <v-col class="text-container py-2" cols="10">
-          <span class="post-date"> 01.01.2000 13:24 </span>
+          <span class="post-date">
+            {{ dayjs(post.createdDate).format("DD.MM.YYYY HH:mm") }}
+          </span>
           <p class="card-text">
             <span class="text-primary font-weight-bold">Jane Doe</span>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+            {{ post.content }}
           </p>
+          <v-sheet v-if="post.image" class="position-relative">
+            <v-img
+              max-width="100%"
+              height="100%"
+              class="ma-2"
+              :src="post.image"
+            >
+            </v-img>
+          </v-sheet>
         </v-col>
       </v-row>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions class="card-actions py-0 mx-1">
       <v-sheet>
-        <v-btn size="small" icon elevation="0">
+        <v-btn size="small" icon elevation="0" @click="likePost">
           <LikeIcon />
-          <span class="ms-1" style="color: #00000029">0</span>
+          <span class="ms-1" style="color: #00000029">{{
+            post.likeCount
+          }}</span>
         </v-btn>
-        <v-btn size="small" icon elevation="0">
-          <UnlikeIcon />
-          <span class="ms-1" style="color: #00000029">0</span>
+        <v-btn size="small" icon elevation="0" @click="dislikePost">
+          <DislikeIcon />
+          <span class="ms-1" style="color: #00000029">{{
+            post.dislikeCount
+          }}</span>
         </v-btn>
       </v-sheet>
       <v-spacer></v-spacer>
@@ -33,7 +48,13 @@
         <v-btn size="small" density="compact" icon elevation="0">
           <EditIcon />
         </v-btn>
-        <v-btn size="small" density="compact" icon elevation="0">
+        <v-btn
+          size="small"
+          density="compact"
+          icon
+          elevation="0"
+          @click="deletePost"
+        >
           <DeleteIcon />
         </v-btn>
       </v-sheet>
@@ -42,7 +63,30 @@
 </template>
 
 <script>
-export default {};
+import dayjs from "dayjs";
+export default {
+  name: "Card",
+  data: () => ({
+    dayjs,
+  }),
+  props: {
+    post: {
+      type: Object,
+      required: true,
+    },
+  },
+  methods: {
+    likePost() {
+      this.$props.post.likeCount++;
+    },
+    dislikePost() {
+      this.$props.post.dislikeCount--;
+    },
+    deletePost() {
+      this.$emit("deletePost", this.$props.post);
+    },
+  },
+};
 </script>
 
 <style>

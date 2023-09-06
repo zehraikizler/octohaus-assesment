@@ -7,22 +7,22 @@
             <textarea
               placeholder="Your text here"
               class="post-input w-100 h-auto mb-3"
-              rows="3"
+              v-model="postContent"
             ></textarea>
-            <v-sheet v-if="uploadedImage" class="position-relative">
+            <v-sheet v-if="selectedImage" class="position-relative">
               <v-btn
                 icon
                 size="x-small"
                 position="absolute"
                 class="remove-image bg-primary"
-                @click="uploadedImage = null"
+                @click="selectedImage = null"
                 >x</v-btn
               >
               <v-img
                 max-width="100%"
                 height="100%"
                 class="ma-2"
-                :src="uploadedImage"
+                :src="selectedImage"
               >
               </v-img>
             </v-sheet>
@@ -59,7 +59,7 @@
               </v-btn>
             </v-sheet>
             <v-spacer></v-spacer>
-            <v-btn color="primary"> Submit </v-btn>
+            <v-btn color="primary" @click="addPost"> Submit </v-btn>
           </v-sheet>
         </v-card-text>
       </v-card>
@@ -69,10 +69,10 @@
 
 <script>
 export default {
-  name: "AddCard",
+  name: "AddPost",
   data: () => ({
-    posts: [],
-    uploadedImage: null,
+    postContent: "",
+    selectedImage: null,
   }),
   methods: {
     openFileInput(id) {
@@ -84,8 +84,21 @@ export default {
       if (post) {
         post.image = URL.createObjectURL(file).toString();
       } else {
-        this.uploadedImage = URL.createObjectURL(file);
+        this.selectedImage = URL.createObjectURL(file);
       }
+    },
+
+    addPost() {
+      const data = {
+        content: this.postContent,
+        createdDate: new Date(),
+        likeCount: 0,
+        dislikeCount: 0,
+        image: this.selectedImage,
+      };
+      this.postContent = "";
+      this.selectedImage = null;
+      this.$emit("addedPost", data);
     },
   },
 };
