@@ -5,10 +5,12 @@
  */
 
 // Plugins
-import { loadFonts } from './webfontloader'
-import vuetify from './vuetify'
+import { loadFonts } from "./webfontloader";
+import vuetify from "./vuetify";
+import { setComponentsAsGlobal } from "./GlobalComponents";
 
-export function registerPlugins (app) {
-  loadFonts()
-  app.use(vuetify)
+export function registerPlugins(app) {
+  setComponentsAsGlobal(app);
+  loadFonts();
+  app.use(vuetify);
 }
