@@ -9,13 +9,25 @@
         </v-col>
         <v-col class="text-container py-2" cols="10">
           <span class="post-date">
-            {{ dayjs(post.createdDate).format("DD.MM.YYYY HH:mm") }}
+            {{
+              post.editedDate
+                ? "edited at " +
+                  dayjs(post.editedDate).format("DD.MM.YYYY HH:mm")
+                : dayjs(post.createdDate).format("DD.MM.YYYY HH:mm")
+            }}
           </span>
           <p class="card-text">
-            <span class="text-primary font-weight-bold">Jane Doe</span>
-            {{ post.content }}
+            <span class="text-primary font-weight-bold me-1">Jane Doe</span>
+            <span v-if="!isEditing">{{ post.content }}</span>
+            <AddPost
+              isEditing
+              :post="post"
+              @cancelled="() => (isEditing = false)"
+              @updatedPost="() => (isEditing = false)"
+              v-else
+            />
           </p>
-          <v-sheet v-if="post.image" class="position-relative">
+          <v-sheet v-if="post.image && !isEditing" class="position-relative">
             <v-img
               max-width="100%"
               height="100%"
@@ -45,7 +57,13 @@
       </v-sheet>
       <v-spacer></v-spacer>
       <v-sheet>
-        <v-btn size="small" density="compact" icon elevation="0">
+        <v-btn
+          size="small"
+          density="compact"
+          icon
+          elevation="0"
+          @click="isEditing = !isEditing"
+        >
           <EditIcon />
         </v-btn>
         <v-btn
@@ -64,10 +82,15 @@
 
 <script>
 import dayjs from "dayjs";
+import AddPost from "./AddPost.vue";
 export default {
   name: "Card",
+  components: {
+    AddPost,
+  },
   data: () => ({
     dayjs,
+    isEditing: false,
   }),
   props: {
     post: {
@@ -77,10 +100,68 @@ export default {
   },
   methods: {
     likePost() {
-      this.$props.post.likeCount++;
+      const dislikedIds = JSON.parse(localStorage.getItem("dislikedIds"));
+      const isAlreadyDisliked = dislikedIds?.filter(
+        (item) => item == this.$props.post.id
+      );
+      if (isAlreadyDisliked && isAlreadyDisliked.length > 0) {
+        this.dislikePost();
+      }
+      const likedIds = JSON.parse(localStorage.getItem("likedIds"));
+      const isAlreadyLiked = likedIds?.filter(
+        (item) => item == this.$props.post.id
+      );
+      if (isAlreadyLiked && isAlreadyLiked.length > 0) {
+        this.$props.post.likeCount--;
+        const index = likedIds.indexOf(this.$props.post.id);
+        likedIds.splice(index, 1);
+        localStorage.setItem("likedIds", JSON.stringify(likedIds));
+      } else {
+        this.$props.post.likeCount++;
+        if (likedIds && likedIds.length > 0) {
+          localStorage.setItem(
+            "likedIds",
+            JSON.stringify([...likedIds, this.$props.post.id])
+          );
+        } else {
+          localStorage.setItem(
+            "likedIds",
+            JSON.stringify([this.$props.post.id])
+          );
+        }
+      }
     },
     dislikePost() {
-      this.$props.post.dislikeCount--;
+      const likedIds = JSON.parse(localStorage.getItem("likedIds"));
+      const isAlreadyLiked = likedIds?.filter(
+        (item) => item == this.$props.post.id
+      );
+      if (isAlreadyLiked && isAlreadyLiked.length > 0) {
+        this.likePost();
+      }
+      const dislikedIds = JSON.parse(localStorage.getItem("dislikedIds"));
+      const isAlreadyDisliked = dislikedIds?.filter(
+        (item) => item == this.$props.post.id
+      );
+      if (isAlreadyDisliked && isAlreadyDisliked.length > 0) {
+        this.$props.post.dislikeCount--;
+        const index = dislikedIds.indexOf(this.$props.post.id);
+        dislikedIds.splice(index, 1);
+        localStorage.setItem("dislikedIds", JSON.stringify(dislikedIds));
+      } else {
+        this.$props.post.dislikeCount++;
+        if (dislikedIds && dislikedIds.length > 0) {
+          localStorage.setItem(
+            "dislikedIds",
+            JSON.stringify([...dislikedIds, this.$props.post.id])
+          );
+        } else {
+          localStorage.setItem(
+            "dislikedIds",
+            JSON.stringify([this.$props.post.id])
+          );
+        }
+      }
     },
     deletePost() {
       this.$emit("deletePost", this.$props.post);

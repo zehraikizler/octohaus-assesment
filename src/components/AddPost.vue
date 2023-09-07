@@ -1,14 +1,20 @@
 <template>
-  <v-row justify="center" class="mt-5">
-    <v-col cols="10" sm="8" md="4" lg="4">
-      <v-card>
-        <v-card-text>
+  <v-row justify="center">
+    <v-col
+      :cols="isEditing ? 12 : 10"
+      :sm="isEditing ? 12 : 8"
+      :md="isEditing ? 12 : 4"
+      :lg="isEditing ? 12 : 4"
+    >
+      <v-card elevation="0">
+        <v-card-text :class="{ 'pa-0': isEditing }">
           <v-sheet class="ma-0 pa-0">
             <textarea
               placeholder="Your text here"
               class="post-input w-100 h-auto mb-3"
               v-model="postContent"
             ></textarea>
+            {{ selectedImage }}
             <v-sheet v-if="selectedImage" class="position-relative">
               <v-btn
                 icon
@@ -31,7 +37,7 @@
             <v-sheet>
               <v-file-input
                 class="d-none"
-                id="fileInput"
+                :id="'fileInput' + post?.id"
                 accept="image/png, image/gif, image/jpeg"
                 type="file"
                 @change="onChange"
@@ -42,7 +48,7 @@
                 icon
                 elevation="0"
                 style="rotate: -45deg"
-                @click="openFileInput('fileInput')"
+                @click="openFileInput('fileInput' + post?.id)"
               >
                 <vue-feather
                   size="18"
@@ -59,7 +65,21 @@
               </v-btn>
             </v-sheet>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="addPost"> Submit </v-btn>
+            <v-sheet v-if="isEditing">
+              <v-btn
+                color="secondary"
+                variant="plain"
+                size="small"
+                @click="$emit('cancelled')"
+              >
+                CANCEL
+              </v-btn>
+              <v-btn color="primary" size="small" @click="updatePost">
+                UPDATE
+              </v-btn>
+            </v-sheet>
+
+            <v-btn color="primary" @click="addPost" v-else> SUBMİT </v-btn>
           </v-sheet>
         </v-card-text>
       </v-card>
@@ -70,6 +90,21 @@
 <script>
 export default {
   name: "AddPost",
+  props: {
+    isEditing: {
+      type: Boolean,
+      default: false,
+    },
+    post: {
+      type: Object,
+    },
+  },
+  mounted() {
+    if (this.$props.isEditing) {
+      this.postContent = this.$props.post?.content || null;
+      this.selectedImage = this.$props.post?.image || null;
+    }
+  },
   data: () => ({
     postContent: "",
     selectedImage: null,
@@ -78,18 +113,15 @@ export default {
     openFileInput(id) {
       document.getElementById(id).click();
     },
-    onChange(event, post = null) {
+    onChange(event) {
       const file = event.target.files[0];
-
-      if (post) {
-        post.image = URL.createObjectURL(file).toString();
-      } else {
-        this.selectedImage = URL.createObjectURL(file);
-      }
+      this.selectedImage = URL.createObjectURL(file);
     },
 
     addPost() {
+      const randomId = Math.random().toString(36).substring(2, 8);
       const data = {
+        id: randomId,
         content: this.postContent,
         createdDate: new Date(),
         likeCount: 0,
@@ -99,6 +131,12 @@ export default {
       this.postContent = "";
       this.selectedImage = null;
       this.$emit("addedPost", data);
+    },
+    updatePost() {
+      this.$props.post.content = this.postContent;
+      this.$props.post.editedDate = new Date();
+      this.$props.post.image = this.selectedImage;
+      this.$emit("updatedPost");
     },
   },
 };

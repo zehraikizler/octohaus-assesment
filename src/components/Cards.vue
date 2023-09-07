@@ -2,8 +2,8 @@
   <v-row justify="center" class="ma-0">
     <v-col cols="10" sm="8" md="4" lg="4">
       <Card
-        v-for="(post, index) in posts"
-        :key="index"
+        v-for="post in posts"
+        :key="post.id"
         :post="post"
         @deletePost="deletePost"
       />

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main class="mb-4">
+    <v-main class="mb-4 mt-8">
       <AddPost @addedPost="addedPost" />
       <Cards :posts="posts" @deletePost="deletePost" />
     </v-main>
@@ -21,6 +21,28 @@ export default {
     posts: [],
     deletedPosts: [],
   }),
+  mounted() {
+    if (localStorage.getItem("posts")) {
+      this.posts = JSON.parse(localStorage.getItem("posts"));
+    }
+    if (localStorage.getItem("deletedPosts")) {
+      this.deletedPosts = JSON.parse(localStorage.getItem("deletedPosts"));
+    }
+  },
+  watch: {
+    posts: {
+      handler: function (newPosts) {
+        localStorage.setItem("posts", JSON.stringify(newPosts));
+      },
+      deep: true,
+    },
+    deletedPosts: {
+      handler: function (newPosts) {
+        localStorage.setItem("deletedPosts", JSON.stringify(newPosts));
+      },
+      deep: true,
+    },
+  },
   methods: {
     addedPost(post) {
       this.posts.push(post);
