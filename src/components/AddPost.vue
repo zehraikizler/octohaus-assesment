@@ -5,16 +5,18 @@
       :sm="isEditing ? 12 : 8"
       :md="isEditing ? 12 : 4"
       :lg="isEditing ? 12 : 4"
+      :class="[isEditing ? 'pa-0' : '']"
     >
       <v-card elevation="0">
         <v-card-text :class="{ 'pa-0': isEditing }">
           <v-sheet class="ma-0 pa-0">
             <textarea
               placeholder="Your text here"
-              class="post-input w-100 h-auto mb-3"
+              class="post-input w-100"
+              :style="[isEditing ? 'padding: 0' : '']"
               v-model="postContent"
+              rows="3"
             ></textarea>
-            {{ selectedImage }}
             <v-sheet v-if="selectedImage" class="position-relative">
               <v-btn
                 icon
@@ -33,7 +35,10 @@
               </v-img>
             </v-sheet>
           </v-sheet>
-          <v-sheet class="d-flex pb-3">
+          <v-sheet
+            class="d-flex pb-3"
+            :style="[isEditing ? 'margin-left:-10px' : '']"
+          >
             <v-sheet>
               <v-file-input
                 class="d-none"
@@ -74,12 +79,19 @@
               >
                 CANCEL
               </v-btn>
-              <v-btn color="primary" size="small" @click="updatePost">
+              <v-btn
+                color="primary"
+                size="small"
+                elevation="0"
+                @click="updatePost"
+              >
                 UPDATE
               </v-btn>
             </v-sheet>
 
-            <v-btn color="primary" @click="addPost" v-else> SUBMİT </v-btn>
+            <v-btn color="primary" @click="addPost" elevation="0" v-else>
+              SUBMIT
+            </v-btn>
           </v-sheet>
         </v-card-text>
       </v-card>
@@ -119,6 +131,10 @@ export default {
     },
 
     addPost() {
+      if (this.postContent.length < 1) {
+        alert("Lütfen bir yazi girin.");
+        return;
+      }
       const randomId = Math.random().toString(36).substring(2, 8);
       const data = {
         id: randomId,
@@ -133,6 +149,10 @@ export default {
       this.$emit("addedPost", data);
     },
     updatePost() {
+      if (this.postContent.length < 1) {
+        alert("Lütfen bir yazi girin.");
+        return;
+      }
       this.$props.post.content = this.postContent;
       this.$props.post.editedDate = new Date();
       this.$props.post.image = this.selectedImage;

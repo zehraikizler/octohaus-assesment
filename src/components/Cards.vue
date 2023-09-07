@@ -1,6 +1,6 @@
 <template>
-  <v-row justify="center" class="ma-0">
-    <v-col cols="10" sm="8" md="4" lg="4">
+  <v-row justify="center">
+    <v-col cols="10" sm="8" md="4" lg="4" class="pt-0">
       <Card
         v-for="post in posts"
         :key="post.id"

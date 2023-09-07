@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main class="mb-4 mt-8">
+    <v-main class="mb-4 mt-6">
       <AddPost @addedPost="addedPost" />
       <Cards :posts="posts" @deletePost="deletePost" />
     </v-main>
@@ -33,6 +33,9 @@ export default {
     posts: {
       handler: function (newPosts) {
         localStorage.setItem("posts", JSON.stringify(newPosts));
+        newPosts.sort(
+          (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+        );
       },
       deep: true,
     },
@@ -62,5 +65,9 @@ body {
     sans-serif;
   min-height: 100vh;
   min-width: 100vw;
+}
+
+.v-row {
+  margin: 0;
 }
 </style>
